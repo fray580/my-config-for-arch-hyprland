@@ -1,0 +1,122 @@
+{
+  "layer": "top",
+  "position": "top",
+  "height": 40,
+
+  "modules-left": [
+    "custom/launcher",
+    "hyprland/workspaces"
+  ],
+
+  "modules-center": [
+    "hyprland/window"
+  ],
+
+  "modules-right": [
+    "hyprland/scratchpad",
+    "custom/weather",
+    "pulseaudio",
+    "custom/notifications",
+    "clock",
+    "custom/spotify"
+  ],
+
+  "custom/launcher": {
+    "format": "",
+    "tooltip": false,
+    "on-click": "wofi --show drun"
+  },
+
+  "hyprland/workspaces": {
+    "format": "{icon}",
+    "on-click": "activate"
+  },
+
+  "hyprland/window": {
+    "format": "  {title}",
+    "max-length": 40,
+    "separate-outputs": true
+  },
+
+  "hyprland/scratchpad": {
+    "format": "{icon} {count}",
+    "show-empty": false,
+    "format-icons": ["", ""],
+    "tooltip": true,
+    "tooltip-format": "{app}: {title}"
+  },
+
+  "custom/weather": {
+    "format": "⛅ {}",
+    "tooltip": true,
+    "interval": 1800,
+    "exec": "curl -s 'wttr.in/Novoaltaysk?format=%t' | sed 's/ //'",
+    "on-click": "xdg-open https://wttr.in/Novoaltaysk"
+  },
+
+  "custom/spotify": {
+    "format": "{}",
+    "return-type": "json",
+    "exec": "~/.config/waybar/scripts/spotify.sh status",
+    "interval": 1,
+    "on-click": "~/.config/waybar/scripts/spotify.sh toggle",
+    "on-click-right": "~/.config/waybar/scripts/spotify.sh next",
+    "on-click-middle": "~/.config/waybar/scripts/spotify.sh prev",
+    "on-scroll-up": "playerctl -p spotify volume 0.05+",
+    "on-scroll-down": "playerctl -p spotify volume 0.05-"
+  },
+
+  "pulseaudio": {
+    "format": "{volume}% {icon}",
+    "format-muted": "{volume}% 󰖁",
+    "format-icons": {
+      "default": ["󰕿", "󰖀", "󰕾"]
+    },
+    "tooltip": false,
+    "on-click": "pavucontrol"
+  },
+
+  "clock": {
+    "format": "  {:%H:%M}",
+    "format-alt": "󰃭  {:%d.%m.%Y}",
+    "tooltip-format": "<tt><small>{calendar}</small></tt>",
+    "calendar": {
+      "mode"          : "month",
+      "mode-mon-col"  : 3,
+      "weeks-pos"     : "right",
+      "on-scroll"     : 1,
+      "format": {
+        "months":     "<span color='#ffffff'><b>{}</b></span>",
+        "days":       "<span color='#ffffff'><b>{}</b></span>",
+        "weeks":      "<span color='#595959'><b>W{}</b></span>",
+        "weekdays":   "<span color='#ffffff'><b>{}</b></span>",
+        "today":      "<span color='#ffffff'><b><u>{}</u></b></span>"
+      }
+    },
+    "actions":  {
+      "on-click-right": "mode",
+      "on-scroll-up": "shift_up",
+      "on-scroll-down": "shift_down"
+    }
+  },
+
+  "custom/notifications": {
+    "tooltip": true,
+    "format": "{icon}",
+    "format-icons": {
+      "notification": "󱅫",
+      "none": "󰂜",
+      "dnd-notification": "󰂠",
+      "dnd-none": "󰪓",
+      "inhibited-notification": "󰂛",
+      "inhibited-none": "󰪑",
+      "dnd-inhibited-notification": "󰂛",
+      "dnd-inhibited-none": "󰪑"
+    },
+    "return-type": "json",
+    "exec": "swaync-client -swb",
+    "on-click": "swaync-client -t -sw",
+    "on-click-right": "swaync-client -d -sw",
+    "escape": true
+  }
+}

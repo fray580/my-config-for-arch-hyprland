@@ -1,0 +1,31 @@
+#!/bin/bash
+
+STATS_DIR="$HOME/.cache/wofi-stats"
+mkdir -p "$STATS_DIR"
+STATS_FILE="$STATS_DIR/usage"
+PID_FILE="$STATS_DIR/watcher.pid"
+
+if [[ -f "$PID_FILE" ]]; then
+    old_pid=$(cat "$PID_FILE")
+    if kill -0 "$old_pid" 2>/dev/null; then
+        exit 0
+    fi
+fi
+
+echo $$ > "$PID_FILE"
+
+cleanup() {
+    rm -f "$PID_FILE"
+    exit 0
+}
+trap cleanup EXIT
+
+while read -r line; do
+    if echo "$line" | grep -q "workspace"; then
+        continue
+    fi
+    if echo "$line" | grep -qE "(exec|spawn)"; then
+        app=$(echo "$line" | sed -E 's/.*(exec|spawn)\s+//' | awk '{print $1}' | sed 's/,$//')
+        [[ -n "$app" ]] && echo "$(date +%s) $app" >> "$STATS_FILE"
+    fi
+done < <(stdbuf -oL tail -f /tmp/hypr/"$(ls /tmp/hypr/ 2>/dev/null | head -1)"/.socket2.sock 2>/dev/null || true)

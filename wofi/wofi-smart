@@ -1,0 +1,38 @@
+#!/bin/bash
+
+STATS_DIR="$HOME/.cache/wofi-stats"
+STATS_FILE="$STATS_DIR/usage"
+mkdir -p "$STATS_DIR"
+
+([[ -f "$STATS_DIR/daemon.pid" ]] && kill -0 $(cat "$STATS_DIR/daemon.pid" 2>/dev/null) 2>/dev/null) || \
+    bash /home/fray/.config/wofi/wofi-daemon &
+
+MIN_USES=5
+CACHE="/tmp/wofi-popular.$$"
+
+get_popular() {
+    local cutoff=$(($(date +%s) - 30 * 86400))
+    awk -v cutoff="$cutoff" -v min="$MIN_USES" '
+        $1 >= cutoff {
+            count[$2]++
+        }
+        END {
+            for (app in count) {
+                if (count[app] >= min) {
+                    print app
+                }
+            }
+        }
+    ' "$STATS_FILE" 2>/dev/null | sort -rn | head -8
+}
+
+get_popular > "$CACHE"
+
+POPULAR=$(cat "$CACHE" 2>/dev/null)
+rm -f "$CACHE"
+
+if [[ -n "$POPULAR" ]]; then
+    wofi --show dmenu -p "→" - <<< $"$POPULAR\n---\n"
+else
+    wofi --show drun
+fi

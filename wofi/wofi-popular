@@ -1,0 +1,42 @@
+#!/bin/bash
+
+STATS_DIR="$HOME/.cache/wofi-stats"
+STATS_FILE="$STATS_DIR/usage"
+mkdir -p "$STATS_DIR"
+
+log_launch() {
+    echo "$(date +%s) $1" >> "$STATS_FILE"
+}
+
+get_popular() {
+    local cutoff=$(($(date +%s) - 30 * 86400))
+    awk -v cutoff="$cutoff" '
+        $1 >= cutoff && $2 !~ /wofi|dmenu|notify-send|systemctl|kill|poweroff|reboot/ {
+            count[$2]++
+        }
+        END {
+            for (app in count) {
+                if (count[app] >= 5) {
+                    print app
+                }
+            }
+        }
+    ' "$STATS_FILE" 2>/dev/null | sort -rn | head -6
+}
+
+CACHE="/tmp/wofi-popular-cache"
+if [[ ! -f "$CACHE" ]] || find "$STATS_FILE" -newer "$CACHE" 2>/dev/null | grep -q .; then
+    get_popular > "$CACHE" 2>/dev/null
+fi
+
+POPULAR=$(cat "$CACHE" 2>/dev/null)
+
+if [[ -n "$POPULAR" ]]; then
+    {
+        echo "--- Often ---"
+        echo "$POPULAR"
+        echo "--- All ---"
+    } | wofi --show dmenu -p "Launch"
+else
+    wofi --show drun
+fi

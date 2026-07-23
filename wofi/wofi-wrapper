@@ -1,0 +1,51 @@
+#!/bin/bash
+
+STATS_DIR="$HOME/.cache/wofi-stats"
+mkdir -p "$STATS_DIR"
+
+STATS_FILE="$STATS_DIR/usage"
+
+log_launch() {
+    local app="$1"
+    [[ -z "$app" ]] && return
+    echo "$(date +%s) $app" >> "$STATS_FILE"
+}
+
+if [[ "$1" == "--log" ]]; then
+    shift
+    log_launch "$*"
+    exit 0
+fi
+
+if [[ "$1" == "--dmenu" ]]; then
+    shift
+    
+    now=$(date +%s)
+    month_ago=$((now - 2592000))
+    
+    top_apps=$(awk -v cutoff="$month_ago" '
+        $1 >= cutoff {
+            count[$2]++
+        }
+        END {
+            for (app in count) {
+                if (count[app] >= 3) {
+                    print count[app], app
+                }
+            }
+        }
+    ' "$STATS_FILE" 2>/dev/null | sort -rn | head -6 | cut -d' ' -f2-)
+    
+    if [[ -n "$top_apps" ]]; then
+        {
+            echo "--- Frequent ---"
+            echo "$top_apps"
+            echo "--- All ---"
+        } | wofi --show dmenu "$@"
+    else
+        wofi --show drun "$@"
+    fi
+    exit 0
+fi
+
+wofi --show drun "$@"

@@ -1,0 +1,36 @@
+#!/bin/bash
+
+STATS_DIR="$HOME/.cache/wofi-stats"
+STATS_FILE="$STATS_DIR/usage"
+PID_FILE="$STATS_DIR/daemon.pid"
+mkdir -p "$STATS_DIR"
+
+if [[ -f "$PID_FILE" ]]; then
+    old_pid=$(cat "$PID_FILE" 2>/dev/null)
+    if [[ -n "$old_pid" ]] && kill -0 "$old_pid" 2>/dev/null; then
+        exit 0
+    fi
+fi
+
+echo $$ > "$PID_FILE"
+
+trap 'rm -f "$PID_FILE"; exit 0' EXIT INT TERM
+
+track_apps() {
+    local socket
+    for socket in /tmp/hypr/*/socket*; do
+        [[ -S "$socket" ]] && {
+            stdbuf -oL tail -f "$socket" 2>/dev/null | while read -r event; do
+                if [[ "$event" == *"exec"* ]]; then
+                    app=$(echo "$event" | sed -E 's/.*exec\s+//' | awk '{print $1}' | tr -d ',')
+                    [[ -n "$app" && "$app" != "wofi" && "$app" != "dmenu" ]] && \
+                        echo "$(date +%s) $app" >> "$STATS_FILE"
+                fi
+            done &
+            break
+        }
+    done
+}
+
+track_apps
+wait

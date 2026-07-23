@@ -1,20 +1,24 @@
-# Wofi конфиг в стиле Hyprland
-# (Arch btw на Hyprland)
-
-location=center
-width=600
+show=drun
+width=500
 height=400
-prompt=Запустить:
+always_parse_args=true
+show_all=false
+print_command=true
+layer=overlay
+allow_images=true
+location=center
+display_drun=Search...
 filter_rate=100
 allow_markup=true
 no_actions=true
 halign=fill
 orientation=vertical
 content_halign=fill
-insensitive=true
-allow_images=true
-image_size=24
-dynamic_lines=true
-lines=10
-columns=1
-line_wrap=true
+cache_file=/dev/null
+image_size=40
+background_color=#000C35
+foreground_color=#ffffff
+border_color=#595959
+selected_background_color=#E50000
+selected_border_color=#022186
+selected_foreground_color=#ffffff
