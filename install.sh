@@ -1,4 +1,4 @@
-sudo pacman -Syu waybar nwg-look fish
+sudo pacman -Syu waybar nwg-look fish wofi kitty
 curl https://raw.githubusercontent.com/oh-my-fish/oh-my-fish/master/bin/install | fish
 omf install lambda  
 cp -r waybar /home/$USER/.config
@@ -8,3 +8,7 @@ cp -r fish /home/$USER/.config
 cp -r kitty /home/$USER/.config
 mkdir -p /home/$USER/wallpaper
 cp alfa.png /home/$USER/wallpaper
+https://aur.archlinux.org/yay.git
+cd yay/
+makepkg -si
+yay -S flclashx-bin wivrn-dashboard vesktop-bin ayugram-desktop-bin 
