@@ -22,7 +22,7 @@
   ],
 
   "custom/launcher": {
-    "format": "",
+    "format": "󰣇",
     "tooltip": false,
     "on-click": "wofi --show drun"
   },
